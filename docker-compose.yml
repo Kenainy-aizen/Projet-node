@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  # MariaDB Database
+  db:
+    image: mariadb:10.5
+    container_name: gestion-materiel-db
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: rootpassword
+      MARIADB_DATABASE: materiel_db
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "3306:3306"
+    networks:
+      - app-network
+
+  # Node.js Backend + React Frontend
+  app:
+    build: .
+    container_name: gestion-materiel-app
+    restart: unless-stopped
+    depends_on:
+      - db
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASSWORD: rootpassword
+      DB_NAME: materiel_db
+      JWT_SECRET: gestion_materiel_secret_key_2024
+    ports:
+      - "5000:5000"
+    networks:
+      - app-network
+    # Wait for database to be ready before starting the app
+    command: >
+      sh -c "
+        echo 'Waiting for database to be ready...' &&
+        while ! nc -z db 3306; do
+          sleep 1;
+        done &&
+        echo 'Database is ready!' &&
+        node server.js
+      "
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  db_data:
