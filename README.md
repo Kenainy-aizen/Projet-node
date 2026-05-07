@@ -301,3 +301,105 @@ Développé dans le cadre d'un projet web fullstack **Node.js / React / MariaDB*
 ---
 
 > 💡 **Note** : Pour la production, pensez à sécuriser le `JWT_SECRET`, activer HTTPS et configurer un reverse proxy (nginx).
+
+---
+
+## 🐳 Déploiement avec Docker
+
+### Prérequis
+
+- [Docker](https://www.docker.com/) installé
+- [Docker Compose](https://docs.docker.com/compose/) installé (inclus avec Docker Desktop)
+
+### Lancement rapide avec Docker Compose (recommandé)
+
+1. **Cloner le dépôt**
+
+```bash
+cd gestion-materiel
+```
+
+2. **Construire et lancer les conteneurs**
+
+```bash
+docker-compose up -d --build
+```
+
+Cette commande va :
+- Construire l'image Docker de l'application (frontend + backend)
+- Démarrer un conteneur MariaDB avec la base de données initialisée
+- Démarrer l'application sur le port 5000
+
+3. **Accéder à l'application**
+
+Ouvrez votre navigateur et allez sur : **http://localhost:5000**
+
+### Commandes Docker utiles
+
+| Commande | Description |
+|---|---|
+| `docker-compose up -d --build` | Construire et lancer en arrière-plan |
+| `docker-compose up` | Lancer en mode interactif (voir les logs) |
+| `docker-compose down` | Arrêter et supprimer les conteneurs |
+| `docker-compose down -v` | Arrêter et supprimer les conteneurs + volumes (⚠️ supprime les données) |
+| `docker-compose logs -f` | Voir les logs en temps réel |
+| `docker-compose ps` | Voir l'état des conteneurs |
+| `docker-compose restart app` | Redémarrer uniquement l'application |
+
+### Configuration des variables d'environnement
+
+Vous pouvez modifier les variables dans `docker-compose.yml` ou créer un fichier `.env` à la racine :
+
+```env
+# .env
+DB_PASSWORD=votre_mot_de_passe_securise
+JWT_SECRET=votre_cle_secrete_super_securisee
+DB_ROOT_PASSWORD=rootpassword
+```
+
+### Structure des services Docker
+
+```
+├── app (gestion-materiel-app)
+│   ├── Backend Node.js/Express sur port 5000
+│   └── Frontend React (servi par le backend)
+│
+└── db (gestion-materiel-db)
+    └── MariaDB 10.5 avec base materiel_db initialisée
+```
+
+### Dépannage
+
+**Si l'application ne démarre pas :**
+
+1. Vérifiez que les ports 5000 et 3306 ne sont pas déjà utilisés
+2. Consultez les logs : `docker-compose logs -f app`
+3. Assurez-vous que MariaDB est prêt : `docker-compose logs db`
+
+**Si la base de données ne s'initialise pas :**
+
+```bash
+# Supprimer les volumes et recommencer
+docker-compose down -v
+docker-compose up -d --build
+```
+
+### Build manuel (sans Docker Compose)
+
+```bash
+# Construire l'image
+docker build -t gestion-materiel .
+
+# Lancer avec une base de données existante
+docker run -p 5000:5000 \
+  -e DB_HOST=votre_host_db \
+  -e DB_PASSWORD=votre_mot_de_passe \
+  -e JWT_SECRET=votre_secret \
+  gestion-materiel
+```
+
+> ⚠️ **Production** : En production, assurez-vous de :
+> - Changer le `JWT_SECRET` par une chaîne aléatoire sécurisée
+> - Utiliser un mot de passe fort pour MariaDB
+> - Configurer un reverse proxy (nginx) avec HTTPS
+> - Limiter l'accès au port 3306 (base de données)
