@@ -1,0 +1,75 @@
+# ===========================
+#  DEPENDENCIES
+# ===========================
+node_modules/
+**/node_modules/
+
+# ===========================
+#  ENVIRONMENT VARIABLES
+# ===========================
+.env
+.env.local
+.env.development
+.env.development.local
+.env.test
+.env.test.local
+.env.production
+.env.production.local
+**/.env
+
+# ===========================
+#  BUILD OUTPUT
+# ===========================
+frontend/build/
+frontend/dist/
+backend/dist/
+
+# ===========================
+#  LOGS
+# ===========================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ===========================
+#  RUNTIME / OS
+# ===========================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ===========================
+#  EDITORS & IDEs
+# ===========================
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+*~
+
+# ===========================
+#  TESTING
+# ===========================
+coverage/
+**/coverage/
+.nyc_output/
+
+# ===========================
+#  MISC
+# ===========================
+.npm
+.eslintcache
+.cache/
+.parcel-cache/
+*.tsbuildinfo
