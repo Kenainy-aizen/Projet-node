@@ -1,5 +1,17 @@
 import React, { useState, useEffect, useCallback } from "react";
 import {
+  Search,
+  Pencil,
+  Trash2,
+  Save,
+  X,
+  Inbox,
+  Filter,
+  CheckCircle2,
+  XCircle,
+  AlertTriangle,
+} from "lucide-react";
+import {
   getAllMateriel,
   updateMateriel,
   deleteMateriel,
@@ -7,11 +19,14 @@ import {
 
 const FILTERS = ["Tous", "Bon", "Mauvais", "Abîmé"];
 
+/* ── Confirm delete modal ── */
 function ConfirmModal({ item, onConfirm, onCancel }) {
   return (
     <div className="modal-overlay" onClick={onCancel}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-icon-wrapper">🗑️</div>
+        <div className="modal-icon-wrapper">
+          <Trash2 size={26} />
+        </div>
         <h3>Confirmer la suppression</h3>
         <p>
           Voulez-vous vraiment supprimer <strong>« {item.design} »</strong> ?
@@ -28,6 +43,13 @@ function ConfirmModal({ item, onConfirm, onCancel }) {
       </div>
     </div>
   );
+}
+
+/* ── Etat icon helper ── */
+function EtatIcon({ etat, size = 14 }) {
+  if (etat === "Bon") return <CheckCircle2 size={size} />;
+  if (etat === "Mauvais") return <XCircle size={size} />;
+  return <AlertTriangle size={size} />;
 }
 
 function ListMateriel() {
@@ -65,7 +87,6 @@ function ListMateriel() {
     setEditId(m.n_materiel);
     setEditForm({ design: m.design, etat: m.etat, quantite: m.quantite });
   };
-
   const cancelEdit = () => {
     setEditId(null);
     setEditForm({});
@@ -84,8 +105,6 @@ function ListMateriel() {
       );
     }
   };
-
-  const confirmDelete = (m) => setDeleteTarget(m);
 
   const handleDelete = async () => {
     try {
@@ -110,6 +129,7 @@ function ListMateriel() {
     return matchSearch && matchFilter;
   });
 
+  /* Skeleton rows */
   const SkeletonRows = () => (
     <>
       {[1, 2, 3, 4].map((i) => (
@@ -136,6 +156,7 @@ function ListMateriel() {
 
   return (
     <div>
+      {/* Page Header */}
       <div className="page-header">
         <div className="page-header-left">
           <h1 className="page-title">Liste & Gestion</h1>
@@ -143,14 +164,19 @@ function ListMateriel() {
             Consultez, modifiez et supprimez les matériels enregistrés
           </p>
         </div>
-        <span className="page-badge">📦 {materiels.length} matériel(s)</span>
+        <span className="page-badge">
+          <Filter size={13} /> {materiels.length} matériel(s)
+        </span>
       </div>
 
       <div className="card">
+        {/* Toolbar */}
         <div className="table-toolbar">
           {/* Search */}
           <div className="search-box">
-            <span className="search-icon">🔍</span>
+            <span className="search-icon">
+              <Search size={15} />
+            </span>
             <input
               type="text"
               className="search-input"
@@ -160,7 +186,7 @@ function ListMateriel() {
             />
           </div>
 
-          {/* Filters */}
+          {/* State filters */}
           <div className="filter-buttons">
             {FILTERS.map((f) => (
               <button
@@ -168,13 +194,25 @@ function ListMateriel() {
                 className={`filter-btn ${filter === f ? `active-${f}` : ""}`}
                 onClick={() => setFilter(f)}
               >
-                {f === "Tous"
-                  ? "Tous"
-                  : f === "Bon"
-                    ? "✅ Bon"
-                    : f === "Mauvais"
-                      ? "❌ Mauvais"
-                      : "⚠️ Abîmé"}
+                {f === "Bon" && (
+                  <CheckCircle2
+                    size={12}
+                    style={{ marginRight: "4px", verticalAlign: "middle" }}
+                  />
+                )}
+                {f === "Mauvais" && (
+                  <XCircle
+                    size={12}
+                    style={{ marginRight: "4px", verticalAlign: "middle" }}
+                  />
+                )}
+                {f === "Abîmé" && (
+                  <AlertTriangle
+                    size={12}
+                    style={{ marginRight: "4px", verticalAlign: "middle" }}
+                  />
+                )}
+                {f}
               </button>
             ))}
           </div>
@@ -182,6 +220,7 @@ function ListMateriel() {
           <span className="table-meta">{filtered.length} résultat(s)</span>
         </div>
 
+        {/* Table */}
         <div className="table-container">
           <table className="materiel-table">
             <thead>
@@ -200,7 +239,9 @@ function ListMateriel() {
                 <tr>
                   <td colSpan={5}>
                     <div className="empty-state">
-                      <span className="empty-state-icon">📭</span>
+                      <div className="empty-state-icon">
+                        <Inbox size={52} />
+                      </div>
                       <h3>Aucun matériel trouvé</h3>
                       <p>
                         {search || filter !== "Tous"
@@ -213,12 +254,10 @@ function ListMateriel() {
               ) : (
                 filtered.map((m) => (
                   <tr key={m.n_materiel}>
-                    {/* ID */}
                     <td>
                       <span className="row-id">#{m.n_materiel}</span>
                     </td>
 
-                    {/* Design */}
                     <td className="design-cell">
                       {editId === m.n_materiel ? (
                         <input
@@ -233,7 +272,6 @@ function ListMateriel() {
                       )}
                     </td>
 
-                    {/* État */}
                     <td>
                       {editId === m.n_materiel ? (
                         <select
@@ -255,7 +293,6 @@ function ListMateriel() {
                       )}
                     </td>
 
-                    {/* Quantité */}
                     <td className="qty-cell">
                       {editId === m.n_materiel ? (
                         <input
@@ -276,7 +313,6 @@ function ListMateriel() {
                       )}
                     </td>
 
-                    {/* Actions */}
                     <td>
                       <div className="action-buttons">
                         {editId === m.n_materiel ? (
@@ -284,14 +320,24 @@ function ListMateriel() {
                             <button
                               className="btn btn-save"
                               onClick={() => saveEdit(m.n_materiel)}
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "0.35rem",
+                              }}
                             >
-                              💾 Sauvegarder
+                              <Save size={13} /> Sauvegarder
                             </button>
                             <button
                               className="btn btn-cancel"
                               onClick={cancelEdit}
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "0.35rem",
+                              }}
                             >
-                              ✖ Annuler
+                              <X size={13} /> Annuler
                             </button>
                           </>
                         ) : (
@@ -299,14 +345,24 @@ function ListMateriel() {
                             <button
                               className="btn btn-edit"
                               onClick={() => startEdit(m)}
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "0.35rem",
+                              }}
                             >
-                              ✏️ Modifier
+                              <Pencil size={13} /> Modifier
                             </button>
                             <button
                               className="btn btn-delete"
-                              onClick={() => confirmDelete(m)}
+                              onClick={() => setDeleteTarget(m)}
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "0.35rem",
+                              }}
                             >
-                              🗑️ Supprimer
+                              <Trash2 size={13} /> Supprimer
                             </button>
                           </>
                         )}
@@ -319,18 +375,20 @@ function ListMateriel() {
           </table>
         </div>
 
-        {/* Inline message */}
         {message && (
           <div className={`inline-message ${message.type}`}>
             <span className="inline-message-icon">
-              {message.type === "success" ? "✅" : "❌"}
+              {message.type === "success" ? (
+                <CheckCircle2 size={18} />
+              ) : (
+                <XCircle size={18} />
+              )}
             </span>
             {message.text}
           </div>
         )}
       </div>
 
-      {/* Delete modal */}
       {deleteTarget && (
         <ConfirmModal
           item={deleteTarget}

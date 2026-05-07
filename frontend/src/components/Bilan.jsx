@@ -12,16 +12,25 @@ import {
   Pie,
   Cell,
 } from "recharts";
+import {
+  Boxes,
+  CheckCircle2,
+  XCircle,
+  AlertTriangle,
+  BarChart3,
+  PieChart as PieChartIcon,
+  Table2,
+  Inbox,
+} from "lucide-react";
 import { getBilan } from "../services/api";
 
-const PALETTE = {
-  Bon: "#10b981",
-  Mauvais: "#ef4444",
-  Abîmé: "#f59e0b",
-};
+const PALETTE = { Bon: "#10b981", Mauvais: "#ef4444", Abîmé: "#f59e0b" };
 
-const ICONS = { Bon: "✅", Mauvais: "❌", Abîmé: "⚠️" };
-const CLASSES = { Bon: "bon", Mauvais: "mauvais", Abîmé: "abime" };
+const ETAT_META = {
+  Bon: { icon: <CheckCircle2 size={20} />, cls: "bon", label: "Bon" },
+  Mauvais: { icon: <XCircle size={20} />, cls: "mauvais", label: "Mauvais" },
+  Abîmé: { icon: <AlertTriangle size={20} />, cls: "abime", label: "Abîmé" },
+};
 
 /* ── Custom Bar Tooltip ── */
 const BarTooltip = ({ active, payload, label }) => {
@@ -42,7 +51,7 @@ const BarTooltip = ({ active, payload, label }) => {
       </p>
       {payload.map((p, i) => (
         <p key={i} style={{ color: p.color }}>
-          {p.name}: <strong>{p.value}</strong>
+          {p.name} : <strong>{p.value}</strong>
         </p>
       ))}
     </div>
@@ -54,12 +63,10 @@ const PieLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
   if (percent < 0.05) return null;
   const R = Math.PI / 180;
   const r = innerRadius + (outerRadius - innerRadius) * 0.55;
-  const x = cx + r * Math.cos(-midAngle * R);
-  const y = cy + r * Math.sin(-midAngle * R);
   return (
     <text
-      x={x}
-      y={y}
+      x={cx + r * Math.cos(-midAngle * R)}
+      y={cy + r * Math.sin(-midAngle * R)}
       fill="white"
       textAnchor="middle"
       dominantBaseline="central"
@@ -86,8 +93,8 @@ const PieTooltip = ({ active, payload }) => {
         fontSize: "0.85rem",
       }}
     >
-      <p style={{ fontWeight: 700, color: d.payload.fill }}>
-        {ICONS[d.name]} {d.name}
+      <p style={{ fontWeight: 700, color: PALETTE[d.name] || d.payload.fill }}>
+        {d.name}
       </p>
       <p style={{ color: "var(--text-muted)", marginTop: "2px" }}>
         Quantité : <strong style={{ color: "var(--text)" }}>{d.value}</strong>
@@ -114,6 +121,9 @@ function Bilan() {
         <div className="page-header">
           <div className="page-header-left">
             <h1 className="page-title">Bilan & Graphes</h1>
+            <p className="page-subtitle">
+              Vue d'ensemble de l'état de votre inventaire
+            </p>
           </div>
         </div>
         <div className="page-loader">
@@ -133,13 +143,16 @@ function Bilan() {
           </div>
         </div>
         <div className="inline-message error" style={{ marginTop: 0 }}>
-          <span className="inline-message-icon">❌</span> {error}
+          <span className="inline-message-icon">
+            <XCircle size={18} />
+          </span>
+          {error}
         </div>
       </div>
     );
   }
 
-  /* Build stats map */
+  /* Build stats */
   const stats = {
     Bon: { nb: 0, qte: 0 },
     Mauvais: { nb: 0, qte: 0 },
@@ -154,6 +167,7 @@ function Bilan() {
   });
 
   const total = Number(bilan?.total || 0);
+  const nbTotal = Object.values(stats).reduce((a, d) => a + d.nb, 0);
 
   const barData = Object.entries(stats).map(([etat, d]) => ({
     etat,
@@ -175,7 +189,9 @@ function Bilan() {
             Vue d'ensemble de l'état de votre inventaire
           </p>
         </div>
-        <span className="page-badge">📊 Tableau de bord</span>
+        <span className="page-badge">
+          <BarChart3 size={13} /> Tableau de bord
+        </span>
       </div>
 
       {/* Stat cards */}
@@ -183,10 +199,10 @@ function Bilan() {
         {/* Total */}
         <div className="stat-card total">
           <div className="stat-card-header">
-            <div className="stat-icon-box">📦</div>
-            <span className="stat-trend">
-              {Object.values(stats).reduce((a, d) => a + d.nb, 0)} articles
-            </span>
+            <div className="stat-icon-box">
+              <Boxes size={22} />
+            </div>
+            <span className="stat-trend">{nbTotal} articles</span>
           </div>
           <div className="stat-value">{total}</div>
           <div className="stat-label">Quantité totale</div>
@@ -194,21 +210,24 @@ function Bilan() {
         </div>
 
         {/* Per état */}
-        {Object.entries(stats).map(([etat, d]) => (
-          <div key={etat} className={`stat-card ${CLASSES[etat]}`}>
-            <div className="stat-card-header">
-              <div className="stat-icon-box">{ICONS[etat]}</div>
-              <span className="stat-trend">{d.nb} article(s)</span>
+        {Object.entries(stats).map(([etat, d]) => {
+          const meta = ETAT_META[etat];
+          return (
+            <div key={etat} className={`stat-card ${meta.cls}`}>
+              <div className="stat-card-header">
+                <div className="stat-icon-box">{meta.icon}</div>
+                <span className="stat-trend">{d.nb} article(s)</span>
+              </div>
+              <div className="stat-value">{d.qte}</div>
+              <div className="stat-label">Quantité — {etat}</div>
+              <div className="stat-sub">
+                {total > 0
+                  ? `${((d.qte / total) * 100).toFixed(1)}% du total`
+                  : "—"}
+              </div>
             </div>
-            <div className="stat-value">{d.qte}</div>
-            <div className="stat-label">Quantité — {etat}</div>
-            <div className="stat-sub">
-              {total > 0
-                ? `${((d.qte / total) * 100).toFixed(1)}% du total`
-                : "—"}
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Charts */}
@@ -216,7 +235,9 @@ function Bilan() {
         {/* Bar chart */}
         <div className="chart-card">
           <div className="chart-card-header">
-            <span className="chart-card-title">📊 Histogramme par état</span>
+            <span className="chart-card-title">
+              <BarChart3 size={16} /> Histogramme par état
+            </span>
             <span className="chart-tag">Articles & Quantités</span>
           </div>
           <ResponsiveContainer width="100%" height={280}>
@@ -267,13 +288,15 @@ function Bilan() {
         <div className="chart-card">
           <div className="chart-card-header">
             <span className="chart-card-title">
-              🥧 Répartition des quantités
+              <PieChartIcon size={16} /> Répartition des quantités
             </span>
             <span className="chart-tag">Par état</span>
           </div>
           {pieData.length === 0 ? (
             <div className="chart-empty">
-              <span>📭</span>
+              <div className="chart-empty-icon">
+                <Inbox size={52} />
+              </div>
               <p>Aucune donnée disponible</p>
             </div>
           ) : (
@@ -293,10 +316,7 @@ function Bilan() {
                   ))}
                 </Pie>
                 <Tooltip content={<PieTooltip />} />
-                <Legend
-                  formatter={(v) => `${ICONS[v] || ""} ${v}`}
-                  wrapperStyle={{ fontSize: "0.82rem" }}
-                />
+                <Legend wrapperStyle={{ fontSize: "0.82rem" }} />
               </PieChart>
             </ResponsiveContainer>
           )}
@@ -310,7 +330,9 @@ function Bilan() {
             className="card-header"
             style={{ marginBottom: "1rem", paddingBottom: "0.75rem" }}
           >
-            <span className="card-title">📋 Récapitulatif détaillé</span>
+            <span className="card-title">
+              <Table2 size={17} /> Récapitulatif détaillé
+            </span>
           </div>
           <div className="table-container">
             <table className="bilan-summary-table">
@@ -353,9 +375,7 @@ function Bilan() {
                     <strong>Total général</strong>
                   </td>
                   <td>
-                    <strong>
-                      {Object.values(stats).reduce((a, d) => a + d.nb, 0)}
-                    </strong>
+                    <strong>{nbTotal}</strong>
                   </td>
                   <td>
                     <strong>{total}</strong>

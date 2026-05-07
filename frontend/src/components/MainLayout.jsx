@@ -1,10 +1,28 @@
 import React from "react";
 import { Outlet, NavLink, useNavigate, useLocation } from "react-router-dom";
+import {
+  Warehouse,
+  PackagePlus,
+  ClipboardList,
+  BarChart3,
+  LogOut,
+  Home,
+  ChevronRight,
+  Calendar,
+} from "lucide-react";
 
 const NAV_ITEMS = [
-  { to: "/app/ajouter", icon: "➕", label: "Ajouter un matériel" },
-  { to: "/app/liste", icon: "📋", label: "Liste & Gestion" },
-  { to: "/app/bilan", icon: "📊", label: "Bilan & Graphes" },
+  {
+    to: "/app/ajouter",
+    icon: <PackagePlus size={17} />,
+    label: "Ajouter un matériel",
+  },
+  {
+    to: "/app/liste",
+    icon: <ClipboardList size={17} />,
+    label: "Liste & Gestion",
+  },
+  { to: "/app/bilan", icon: <BarChart3 size={17} />, label: "Bilan & Graphes" },
 ];
 
 const PAGE_TITLES = {
@@ -36,14 +54,18 @@ function MainLayout() {
     <div className="main-layout">
       {/* ── Sidebar ── */}
       <aside className="sidebar">
+        {/* Logo */}
         <div className="sidebar-header">
-          <div className="sidebar-logo-box">🏗️</div>
+          <div className="sidebar-logo-box">
+            <Warehouse size={22} />
+          </div>
           <div className="sidebar-title">
             <h2>GestMat</h2>
             <span>v1.0.0</span>
           </div>
         </div>
 
+        {/* Navigation */}
         <nav className="sidebar-nav">
           <div className="nav-section-label">Navigation</div>
           <ul>
@@ -61,6 +83,7 @@ function MainLayout() {
           </ul>
         </nav>
 
+        {/* Footer */}
         <div className="sidebar-footer">
           <div className="user-card">
             <div className="user-avatar">{initial}</div>
@@ -70,7 +93,7 @@ function MainLayout() {
             </div>
           </div>
           <button className="btn-logout" onClick={handleLogout}>
-            <span>🚪</span>
+            <LogOut size={15} />
             <span>Déconnexion</span>
           </button>
         </div>
@@ -78,19 +101,25 @@ function MainLayout() {
 
       {/* ── Content wrapper ── */}
       <div className="content-wrapper">
-        {/* Top bar */}
+        {/* Topbar */}
         <header className="topbar">
           <div className="topbar-left">
             <nav className="breadcrumb">
-              <span className="breadcrumb-home">🏠 Accueil</span>
-              <span className="breadcrumb-sep">/</span>
+              <Home size={14} className="icon-muted" />
+              <ChevronRight size={14} className="breadcrumb-sep" />
               <span className="breadcrumb-current">
                 {PAGE_TITLES[pathname] || "Page"}
               </span>
             </nav>
           </div>
           <div className="topbar-right">
-            <span className="topbar-date">📅 {today}</span>
+            <span className="topbar-date">
+              <Calendar
+                size={13}
+                style={{ marginRight: "0.35rem", verticalAlign: "middle" }}
+              />
+              {today}
+            </span>
           </div>
         </header>
 

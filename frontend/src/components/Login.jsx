@@ -1,6 +1,28 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  Warehouse,
+  User,
+  Lock,
+  Eye,
+  EyeOff,
+  ArrowRight,
+  Activity,
+  BarChart3,
+  Tag,
+  ShieldCheck,
+} from "lucide-react";
 import { login, register } from "../services/api";
+
+const FEATURES = [
+  { icon: <Activity size={15} />, text: "Suivi en temps réel des matériels" },
+  { icon: <BarChart3 size={15} />, text: "Tableaux de bord et statistiques" },
+  { icon: <Tag size={15} />, text: "Gestion des états : Bon, Mauvais, Abîmé" },
+  {
+    icon: <ShieldCheck size={15} />,
+    text: "Accès sécurisé par authentification JWT",
+  },
+];
 
 function Login() {
   const navigate = useNavigate();
@@ -46,38 +68,31 @@ function Login() {
 
   return (
     <div className="login-page">
-      {/* Left — Branding */}
+      {/* ── Left — Branding ── */}
       <div className="login-brand">
         <div className="brand-content">
-          <div className="brand-icon-wrapper">🏗️</div>
+          <div className="brand-icon-wrapper">
+            <Warehouse size={44} />
+          </div>
           <h1>Gestion Matériel</h1>
           <p>Gérez votre inventaire efficacement</p>
+
           <div className="brand-features">
-            <div className="brand-feature">
-              <span className="brand-feature-dot" />
-              Suivi en temps réel des matériels
-            </div>
-            <div className="brand-feature">
-              <span className="brand-feature-dot" />
-              Tableaux de bord et statistiques
-            </div>
-            <div className="brand-feature">
-              <span className="brand-feature-dot" />
-              Gestion des états : Bon, Mauvais, Abîmé
-            </div>
-            <div className="brand-feature">
-              <span className="brand-feature-dot" />
-              Accès sécurisé par authentification JWT
-            </div>
+            {FEATURES.map((f, i) => (
+              <div key={i} className="brand-feature">
+                <span className="brand-feature-icon">{f.icon}</span>
+                {f.text}
+              </div>
+            ))}
           </div>
         </div>
       </div>
 
-      {/* Right — Form */}
+      {/* ── Right — Form ── */}
       <div className="login-form-panel">
         <div className="login-form-inner">
           <div className="login-form-header">
-            <h2>{mode === "login" ? "Bon retour 👋" : "Créer un compte"}</h2>
+            <h2>{mode === "login" ? "Bon retour !" : "Créer un compte"}</h2>
             <p>
               {mode === "login"
                 ? "Connectez-vous pour accéder à votre tableau de bord"
@@ -107,10 +122,13 @@ function Login() {
           </div>
 
           <form onSubmit={handleSubmit}>
+            {/* Username */}
             <div className="form-group">
               <label>Nom d'utilisateur</label>
               <div className="input-wrapper">
-                <span className="input-icon">👤</span>
+                <span className="input-icon">
+                  <User size={16} />
+                </span>
                 <input
                   type="text"
                   name="username"
@@ -123,10 +141,13 @@ function Login() {
               </div>
             </div>
 
+            {/* Password */}
             <div className="form-group">
               <label>Mot de passe</label>
               <div className="input-wrapper">
-                <span className="input-icon">🔒</span>
+                <span className="input-icon">
+                  <Lock size={16} />
+                </span>
                 <input
                   type={showPassword ? "text" : "password"}
                   name="password"
@@ -144,7 +165,7 @@ function Login() {
                   onClick={() => setShowPassword(!showPassword)}
                   tabIndex={-1}
                 >
-                  {showPassword ? "🙈" : "👁️"}
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
             </div>
@@ -158,10 +179,11 @@ function Login() {
                 <>
                   <span className="btn-spinner" /> Chargement...
                 </>
-              ) : mode === "login" ? (
-                "Se connecter →"
               ) : (
-                "Créer mon compte →"
+                <>
+                  {mode === "login" ? "Se connecter" : "Créer mon compte"}
+                  <ArrowRight size={16} />
+                </>
               )}
             </button>
           </form>
@@ -169,7 +191,31 @@ function Login() {
           {message && (
             <div className={`inline-message ${message.type}`}>
               <span className="inline-message-icon">
-                {message.type === "success" ? "✅" : "❌"}
+                {message.type === "success" ? (
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                  >
+                    <path d="M20 6L9 17l-5-5" />
+                  </svg>
+                ) : (
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                  >
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="15" y1="9" x2="9" y2="15" />
+                    <line x1="9" y1="9" x2="15" y2="15" />
+                  </svg>
+                )}
               </span>
               {message.text}
             </div>
@@ -197,6 +243,7 @@ function Login() {
                 fontWeight: 600,
                 cursor: "pointer",
                 fontSize: "inherit",
+                fontFamily: "inherit",
               }}
             >
               {mode === "login" ? "S'inscrire" : "Se connecter"}

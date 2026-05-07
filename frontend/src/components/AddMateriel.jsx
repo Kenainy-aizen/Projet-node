@@ -1,12 +1,39 @@
 import React, { useState } from "react";
+import {
+  Package,
+  Tag,
+  Hash,
+  Save,
+  RotateCcw,
+  Eye,
+  Plus,
+  CheckCircle2,
+  XCircle,
+  AlertTriangle,
+} from "lucide-react";
 import { addMateriel } from "../services/api";
 
 const initialForm = { design: "", etat: "", quantite: "" };
 
 const ETAT_OPTIONS = [
-  { value: "Bon", label: "Bon", icon: "✅", color: "var(--success)" },
-  { value: "Mauvais", label: "Mauvais", icon: "❌", color: "var(--danger)" },
-  { value: "Abîmé", label: "Abîmé", icon: "⚠️", color: "var(--warning)" },
+  {
+    value: "Bon",
+    label: "Bon",
+    icon: <CheckCircle2 size={15} />,
+    color: "var(--success)",
+  },
+  {
+    value: "Mauvais",
+    label: "Mauvais",
+    icon: <XCircle size={15} />,
+    color: "var(--danger)",
+  },
+  {
+    value: "Abîmé",
+    label: "Abîmé",
+    icon: <AlertTriangle size={15} />,
+    color: "var(--warning)",
+  },
 ];
 
 function AddMateriel() {
@@ -49,12 +76,16 @@ function AddMateriel() {
             Renseignez les informations du nouveau matériel à enregistrer
           </p>
         </div>
-        <span className="page-badge">➕ Nouveau</span>
+        <span className="page-badge">
+          <Plus size={13} /> Nouveau
+        </span>
       </div>
 
       <div className="card add-form">
         <div className="card-header">
-          <span className="card-title">📝 Formulaire d'ajout</span>
+          <span className="card-title">
+            <Package size={17} /> Formulaire d'ajout
+          </span>
         </div>
 
         <form onSubmit={handleSubmit}>
@@ -62,7 +93,9 @@ function AddMateriel() {
           <div className="form-group">
             <label>Désignation du matériel</label>
             <div className="input-wrapper">
-              <span className="input-icon">📦</span>
+              <span className="input-icon">
+                <Package size={16} />
+              </span>
               <input
                 type="text"
                 name="design"
@@ -81,7 +114,13 @@ function AddMateriel() {
               <label>État</label>
               <div className="input-wrapper">
                 <span className="input-icon">
-                  {selectedEtat ? selectedEtat.icon : "🔖"}
+                  {selectedEtat ? (
+                    <span style={{ color: selectedEtat.color }}>
+                      {selectedEtat.icon}
+                    </span>
+                  ) : (
+                    <Tag size={16} />
+                  )}
                 </span>
                 <select
                   name="etat"
@@ -92,7 +131,7 @@ function AddMateriel() {
                   <option value="">— Sélectionner —</option>
                   {ETAT_OPTIONS.map((opt) => (
                     <option key={opt.value} value={opt.value}>
-                      {opt.icon} {opt.label}
+                      {opt.label}
                     </option>
                   ))}
                 </select>
@@ -103,7 +142,9 @@ function AddMateriel() {
             <div className="form-group">
               <label>Quantité</label>
               <div className="input-wrapper">
-                <span className="input-icon">🔢</span>
+                <span className="input-icon">
+                  <Hash size={16} />
+                </span>
                 <input
                   type="number"
                   name="quantite"
@@ -120,7 +161,7 @@ function AddMateriel() {
 
           <div className="form-divider" />
 
-          {/* Preview badge */}
+          {/* Live preview */}
           {form.design && form.etat && form.quantite && (
             <div
               style={{
@@ -134,9 +175,10 @@ function AddMateriel() {
                 display: "flex",
                 alignItems: "center",
                 gap: "0.5rem",
+                flexWrap: "wrap",
               }}
             >
-              <span>👁️</span>
+              <Eye size={14} />
               <span>Aperçu :</span>
               <strong style={{ color: "var(--text)" }}>{form.design}</strong>
               <span>·</span>
@@ -158,28 +200,34 @@ function AddMateriel() {
                   <span className="btn-spinner" /> Enregistrement...
                 </>
               ) : (
-                "💾 Enregistrer le matériel"
+                <>
+                  <Save size={16} /> Enregistrer le matériel
+                </>
               )}
             </button>
             <button
               type="button"
               className="btn btn-cancel"
+              style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}
               onClick={() => {
                 setForm(initialForm);
                 setMessage(null);
               }}
               disabled={loading}
             >
-              Réinitialiser
+              <RotateCcw size={14} /> Réinitialiser
             </button>
           </div>
         </form>
 
-        {/* Message */}
         {message && (
           <div className={`inline-message ${message.type}`}>
             <span className="inline-message-icon">
-              {message.type === "success" ? "✅" : "❌"}
+              {message.type === "success" ? (
+                <CheckCircle2 size={18} />
+              ) : (
+                <XCircle size={18} />
+              )}
             </span>
             {message.text}
           </div>
